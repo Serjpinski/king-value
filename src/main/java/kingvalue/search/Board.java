@@ -54,6 +54,8 @@ public class Board {
 			pieceCountsByType[Piece.Type.PAWN.ordinal()] -= move.promotion.side == Side.WHITE ? 1 : -1;
 			pieceCountsByType[move.promotion.type.ordinal()] += move.promotion.side == Side.WHITE ? 1 : -1;
 		}
+
+		sideToMove = sideToMove == Side.WHITE ? Side.BLACK : Side.WHITE;
 	}
 
 	public void undoMove (Move move) {
@@ -71,13 +73,73 @@ public class Board {
 			pieceCountsByType[move.captured.type.ordinal()] += move.captured.side == Side.WHITE ? 1 : -1;
 			pieceCountsBySide[move.captured.side.ordinal()]++;
 		}
+
+		sideToMove = sideToMove == Side.WHITE ? Side.BLACK : Side.WHITE;
 	}
 
-	public List<Move> getLegalMovements () {
+	public List<Move> getLegalMoves() {
 				
 		List<Move> legalMoves = new ArrayList<>();
+		int side = sideToMove == Side.WHITE ? 1 : -1;
 		
-		// TODO
+		for (int i = 0; i < pieces.length; i++) {
+			for (int j = 0; j < pieces[0].length; j++) {
+
+				Piece piece = pieces[i][j];
+
+				if (piece != null && sideToMove == piece.side) {
+
+					Position position = new Position(i, j);
+
+					if (piece.type == Piece.Type.PAWN) {
+
+						int j2 = j + side;
+
+						if (pieces[i][j2] == null) {
+							if (j == 6) {
+								for (Piece.Type type : Piece.Type.values()) {
+									if (type != Piece.Type.PAWN) {
+										legalMoves.add(new Move(position, new Position(i, j2), new Piece(type, sideToMove), null));
+									}
+								}
+							}
+							else {
+								legalMoves.add(new Move(position, new Position(i, j2), null, null));
+							}
+						}
+
+						if (i > 0 && pieces[i - 1][j2] != null && pieces[i - 1][j2].side != sideToMove) {
+							if (j == 6) {
+								for (Piece.Type type : Piece.Type.values()) {
+									if (type != Piece.Type.PAWN) {
+										legalMoves.add(new Move(position, new Position(i - 1, j2), new Piece(type, sideToMove), pieces[i - 1][j2]));
+									}
+								}
+							}
+							else {
+								legalMoves.add(new Move(position, new Position(i - 1, j2), null, pieces[i - 1][j2]));
+							}
+						}
+
+						if (i < 7 && pieces[i + 1][j2] != null && pieces[i + 1][j2].side != sideToMove) {
+							if (j == 6) {
+								for (Piece.Type type : Piece.Type.values()) {
+									if (type != Piece.Type.PAWN) {
+										legalMoves.add(new Move(position, new Position(i + 1, j2), new Piece(type, sideToMove), pieces[i + 1][j2]));
+									}
+								}
+							}
+							else {
+								legalMoves.add(new Move(position, new Position(i + 1, j2), null, pieces[i + 1][j2]));
+							}
+						}
+					}
+					else if (piece.type == Piece.Type.KNIGHT) {
+						
+					}
+				}
+			}
+		}
 		
 		return legalMoves;
 	}
@@ -100,5 +162,10 @@ public class Board {
 
 		public Type type;
 		public Side side;
+
+		public Piece(Type type, Side side) {
+			this.type = type;
+			this.side = side;
+		}
 	}
 }

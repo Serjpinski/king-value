@@ -54,7 +54,7 @@ public class Engine {
 	    // If time expired, returns the minimum score (this is arbitrary)
 		if (timeExpired(timeLimit, timeZero)) return new SelectedMovement(null, alpha, null);
 		
-	    List<Move> moves = board.getLegalMovements();
+	    List<Move> moves = board.getLegalMoves();
 		
 	    if (nextPVMove != null && nextPVMove.getMove() != null) {
 	    	
